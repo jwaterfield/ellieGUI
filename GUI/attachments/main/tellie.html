@@ -2,17 +2,18 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>TELLIE Control Interface (It "still" does not stink)</title>
+    <title>TELLIE Control Interface (Time to turn on the TELLIE)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1	.0">
-    <meta name="description" content="SMELLIE Control Interface">
-    <meta name="author" content="Christopher Jones @ Oxford University for SNO+">
+    <meta name="description" content="TELLIE Control Interface">
+    <meta name="author" content="James Waterfield @ University of Sussex for SNO+">
 
     <!-- Le styles -->
     <link href="../assets/css/bootstrap.css" rel="stylesheet">
     <style type="text/css">
       body {
-		background-color:#94878B;     
+		background-color:#FFFFFF;     
 		}
+
     </style>
     <link href="../assets/css/bootstrap-responsive.css" rel="stylesheet">
 	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -25,194 +26,224 @@
  
 <body>
 
-<div class="container">
-        	<div class="row-fluid">
-            	<div class="span12">
-					<h1>TELLIE Control Panel</h1>	
-				</div>
-			</div>
-</div>
+   <div class="navbar navbar-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#">TELLIE Control Panel</a>
+          <ul style="width: 80%" class="nav" role="navigation">
+            <li style="float: right"><a href="ellie.html"> ELLIE Controls </a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
 
-<div class="container">
-        	<div class="row-fluid">
-            	<!--<div class="span12">-->
-                	<!--<div class="span6">-->
-                  			
-					<!-- A view of the json file or similar will go here -->
-                	<!--</div>-->
-				
-				
-				<div class="well span3" id="inputTable">
-					<h4>General Settings:</h4>
-                	<div class="control-group">
-                		<label class="control-label" for="laserIntensity">Laser Intensity (%)</label>
-                        <div class="controls">
-                            <input type="number" id="laserIntensityId" placeholder="e.g. 10">
-                        </div>
-                    </div>
-	
+    <div class="container">
+        	<div class="row-fluid">				
+
+				<div class="well span3" id="global_settings_input">
+				<h4 id="global_settings">Global Settings:</h4>
 					<div class="control-group">
-                		<label class="control-label" for="runID">Run ID</label>
+                		<label class="control-label" for="run_no">Run ID</label>
                         <div class="controls">
-                            <input type="number" id="runIDId" placeholder="e.g. 5768 (Read from ORCA)">
+                            <input type="number" id="run_no_id" placeholder="e.g. 5768 (Read from ORCA)">
+			</div>
+
+                        </div>
+			<div class="control-group">
+                		<label class="control-label" for="operator_name">Operator Name</label>
+                        <div class="controls">
+                            <input type="text" id="operator_name_id" placeholder="e.g. Bill Murray">
+                        </div>
+
+			<div class="control-group">
+                		<label class="control-label" for="pulse_number">Number of Pulses</label>
+                        <div class="controls">
+                          <input type="number" id="pulse_number_id" placeholder="e.g. 1000">
+                        </div>
+			</div>
+
+			<div class="control-group">
+                		<label class="control-label" for="pulse_frequency">Pulse Frequency (Hz)</label>
+                        <div class="controls">
+                          <input type="number" id="pulse_frequency_id" placeholder="e.g. 10">
+                        </div>
+			</div>
+
+			<div class="control-group">
+                		<label class="control-label" for="trigger_delay">Trigger Delay (ns)</label>
+                        <div class="controls">
+                          <input type="number" id="trigger_delay_id" placeholder="e.g. 600">
+                        </div>
+			</div>
+                    </div>
+			
+		</div> 	
+
+				<div class="well span3" id="inputTable">
+					<h4>Channel Presets:</h4>
+                	<div class="control-group">
+                		<label class="control-label" for="channel">Channel Number</label>
+                        <div class="controls">
+                            <input type="number" id="channel_id" placeholder="Integer: 0 - 96">
                         </div>
                     </div>
-
 						
 			        <form>	
-                		<label class="control-label" for="laserChannel">Laser Channel</label>
-						<select name="laserChannelSelect" id="laserChannelSelectId" >
-						<!-- This should eventually correspond to a laser frequency and a laser head -->	
-							<option value="1">Channel 1</option>
-							<option value="2">Channel 2</option>
-							<option value="3">Channel 3</option>
-							<option value="4">Channel 4</option>
-							<option value="5">Channel 5</option>			
+                		<label class="control-label" for="channel">Number of Photons</label>
+						<select name="number_of_photons" id="number_of_photons_id" >
+							<option value="1000000">1,000,000</option>
+							<option value="100000">100,000</option>
+							<option value="10000">10,000</option>
+							<option value="1000">1,000</option>			
 						</select>
 					</form>
 
-			        <form>	
-                		<label class="control-label" for="fibreSwitchChannel">Fibre Switch Channel</label>
-						<select name="fibreSwitchChannelSelect" id="fibreSwitchSelectId" >
-						<!-- This should eventually correspond to a laser frequency and a laser head -->	
-							<option value="1">Channel 1</option>
-							<option value="2">Channel 2</option>
-							<option value="3">Channel 3</option>
-							<option value="4">Channel 4</option>
-							<option value="5">Channel 5</option>
-							<option value="6">Channel 6</option>
-							<option value="7">Channel 7</option>
-							<option value="8">Channel 8</option>
-							<option value="9">Channel 9</option>
-							<option value="10">Channel 10</option>
-							<option value="11">Channel 11</option>
-							<option value="12">Channel 12</option>
-							<option value="13">Channel 13</option>
-							<option value="14">Channel 14</option>
-						</select>
-					</form>
-	
-					<div class="control-group" id="calibrationTableRefId" style="display:block">
-                		<label class="control-label" for="calibrationTableRef">Calibration Table Reference</label>
-                        <div class="controls">
-                            <input type="number" id="calibrationTableRefIdinput" placeholder="e.g. 1">
-                        </div>
+			<div class="control-group">
+					<a onClick="loadTelliePreset()" class="btn btn btn-action">Load Preset</a>
+			</div>
                     </div>
-					
-					<div class="control-group">
-                		<label class="control-label" for="operatorName">Operator Name</label>
-                        <div class="controls">
-                            <input type="text" id="operatorNameId" placeholder="e.g. Christopher Jones">
-                        </div>
-                    </div>
-					
-					<form>
-                		<label class="control-label" for="triggerMode">SMELLIE Trigger:</label>						
-						<input onclick="masterMode()" type="radio" name="triggerModeName" value="SMELLIETriggersSNOplus" id="masterModeId"> Master Mode<br>
-						<input onclick="slaveMode()" type="radio" name="triggerModeName" value="SNOplusTriggersSMELLIE"  id="slaveModeId" checked> Slave Mode
-					</form> 
-					
-					<form>
-                		<label class="control-label" for="calibrationMode">Build Calibration Table:</label>						
-						<input onclick="buildCalTableMode()"type="radio" name="calibrationMode" value="true" id="calibrationTrueId"> True<br>
-						<input onclick="nobuildCalTableMode()"type="radio" name="calibrationMode" value="false" checked id="calibrationFalseId"> False
-					</form> 
-					
-					
-					
- 					                                           
-				</div>
 
-				<div class="well span3" id="triggerModeinput" style="display:none">
-				<h4 id="modesettings">Master Mode Settings:</h4>
+				<div class="well span3" id="channel_settings_input">
+				<h4 id="channel_settings">Channel Settings:<br>(Load Preset First)</h4>
 					<div class="control-group">
-                		<label class="control-label" for="photonsPerPulseRef">Estimated Photons per Pulse</label>
+                		<label class="control-label" for="channel2">Channel Number</label>
                         <div class="controls">
-                            <input type="number" id="photonsPerPulseId" placeholder="e.g. 10000">
+                            <input type="number" id="channel2_id" placeholder="Integer: 0 - 96">
                         </div>
                     </div>
 				
 					<div class="control-group">
-                		<label class="control-label" for="numOfPulsesRef">Number of Laser Pulses</label>
+                		<label class="control-label" for="iop">Pulse Height (IOP)</label>
                         <div class="controls">
-                            <input type="number" id="numOfPulsesId" placeholder="e.g. 1000">
+                            <input type="number" id="iop_id" placeholder="Integer: 0 (Min) - 16383 (Max)">
                         </div>
                     </div>
 
 					<div class="control-group">
-                		<label class="control-label" for="smelliePulseFrequencyRef">Pulse Frequency (Hz)</label>
+                		<label class="control-label" for="ipw">Pulse Width (IPW)</label>
                         <div class="controls">
-                            <input type="number" id="pulseFrequencyId" placeholder="between 0 - 1000">
+                            <input type="number" id="ipw_id" placeholder="Integer: 0 (Max) - 16383 (Min)">
+                        </div>
+                    </div>
+					<div class="control-group">
+                		<label class="control-label" for="fibre_delay">Fibre Delay (ns)</label>
+                        <div class="controls">
+                            <input type="number" id="fibre_delay_id" placeholder="Time in ns">
                         </div>
                     </div>
 
-					</div> <!-- End of Blocked Class -->	
+		</div> 	
+
 					<div class="well span3" id="startButtons"> 
-					<h4>SMELLIE Run Control:</h4><br>
-					<h6> This will have SMELLIE run patterns in the future!</h6><br>                                           
+					<h4>TELLIE Run Control:</h4><br>
 						<div class="control-group">
-							<a onClick="loadValues()" class="btn btn btn-action">Load</a>
-							<a onClick="submitToSmellieDaq()" class="btn btn btn-primary" id="startButton">Start</a>
+							<a onClick="loadTellie()" class="btn btn btn-action" id="startButton">Load</a>
 						</div>
 
 						<div class="control-group">
+							<a onClick="submitToTellieDaq()" class="btn btn btn-primary">Fire!</a>
+						</div>
+						<div class="control-group">
 							<a href="#" class="btn btn btn-danger">Configuration Settings</a>
-						</div>						
+						</div>							
 					</div>
 					 
-					<div class="well span3" id="inputErrors"><h4>Input ERRORS:</h4></div>
-					
+					<div class="well span3" id="inputErrors", style="display:none"><h4></div>
 					<div id="hiddenJSON"></div>
 				
             </div>
         </div>
+    </div>
+
 	<script>
 	/* ERROR FLAGS --------------------------------------------------*/
- 	//if any of these flag is equal to zero then this document will get posted
-    var calibrationFlag = 0; 						//calibration table not set and is not set to Build calibration table
-	var nakedLaserIntensityflag = 0; 				//naked intensity on the laser isn't correctly set
-	var smellietriggerModeFlag = 0; 				//SMELLIE trigger mode is within correct range
-	var runIdFlag = 0; 								//SMELLIE run Id flag 
+	var runIdFlag = 0;                                                      //TELLIE run Id flag
+	var numPulsesIdFlag=0;                                                  //Number of pulses Id flag
+	var pulseFreqIdFlag=0;                                                  //Pulse frequency Id flag
+	var trigDelayIdFlag=0;                                                  //Trigger delay Id flag
+	var channelIdFlag=0;                                                    //Channel Id flag
+	var iopIdFlag=0;                                                        //IOP Id flag
+	var ipwIdFlag=0;                                                        //IPW Id flag
+	var fibreDelayIdFlag=0;                                                 //Fibre delay Id flag
 	var totalErrorMessage;							//Complete Error Message
 	var stopRunAbility = 10; 						//Stop a run from occuring (defaults to 10 to indicate the loading is not yet safe
 	/*------------------------------------------------------------------*/
 
-	function buildCalTableMode(){								//GUI interface changes if the build calibration mode is active				
-		$("#calibrationTableRefId").css( "display", "none");	//This will make the calibration Table Id Reference field visible
-	}
-	
-	function nobuildCalTableMode(){								//GUI interface changes to disable calibration reference id				
-		$("#calibrationTableRefId").css( "display", "block");	//Removes the calibration table id reference field
-	}
 	
 	function clearErrorDiv(){
-		$("#calibrationTableRefId").css("display", "block");	//reset the calibration table button
 		$("#inputErrors").css( "display", "none");				//reset the input error html
 		totalErrorMessage = "<h4>Input ERRORS:</h4><ul>";		//reset the error message	
 	
 	}
 
-	//if slave mode is selected
-	function slaveMode(){ 										
-		$("#triggerModeinput").css( "display", "none");
-	}
+	function loadTelliePreset(){
 
-	//if master mode is selected
-	function masterMode(){ 
-		$("#triggerModeinput").css( "display", "block");
-	}
 	
-	function loadValues(){
-		
-		/* NOTE:The timestamp is outside the loadValues function because this is also used to Submit to the SMELLIE DAQ/ORCA/CouchDB*/
-		// Time Stamp for a SMELLIE run
+	    clearErrorDiv(); //clear and setup the error message catch	
+
+	    //Number of photons
+	    var num_phot_el = document.getElementById("number_of_photons_id"); //get the photon number HTML element
+	    var num_phot = num_phot_el.options[num_phot_el.selectedIndex].value; //return the selected photon number on the laser Selector HTML element
+
+	    //Channel field
+	    var chan1 = $("#channel_id").val();
+	    if (!chan1){
+	       channelIdFlag = 1;
+	       alert("Channel number not set, fill both fields.");
+	       totalErrorMessage = totalErrorMessage + "<li><h6>Error: Channel number not set.</h6></li>";
+	    }
+
+            else if (chan1 < 0 ||chan1 > 96){
+		channelIdFlag = 1;
+	        alert("Error: Invalid channel number. Channel number ranges between 0 - 96");
+	        totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid channel number. Channel number ranges between 0 - 96</h6></li>";
+	    } 
+
+	    else{
+	        channelIdFlag = 0;
+                }
+
+	    var errorFlagSum = channelIdFlag;
+
+	    if(errorFlagSum > 0){ //disable the start button
+		totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"</ul>"; //close the bullet point of error message before printing
+	        $('#inputErrors').html(totalErrorMessage);
+	        $("#inputErrors").css( "display", "block");
+	        return;
+	     }
+
+	//Use channel number and no of photons to extract IOP, IPW, fibre delay from DB
+	// Following is a placeholder for now...
+	IOP = 16383;
+	IPW = 6000;
+	fib_delay = 0;
+	// End of placeholder
+	
+	var chan2_elem = document.getElementById("channel2_id");
+	chan2_elem.value = chan1;
+	
+	var iop_elem = document.getElementById("iop_id");
+	iop_elem.value = IOP;
+
+	var ipw_elem = document.getElementById("ipw_id");
+	ipw_elem.value = IPW;
+
+	 var fib_elem = document.getElementById("fibre_delay_id");
+	 fib_elem.value = fib_delay;
+			
+}	 //End of the load preset button
+
+
+
+	function loadTellie(){
+
 		var timeStamp = new Date().getTime(); //returns the current time in epoch format (time in ms from January 1970)	
 	
-		clearErrorDiv() //clear and setup the error message catch	
-	
+		clearErrorDiv(); //clear and setup the error message catch	
+
 		// Run ID (currently the User inputs this from ORCA)
-		var run_id = $("#runIDId").val();
+		var run_id = $("#run_no_id").val();
 		if(!run_id.length){ //if the run ID is not set
 			run_id = 1;			
 			totalErrorMessage = totalErrorMessage + "<li><h6>Run ID is not set! Defaulting to 1!</h6></li>";
@@ -222,163 +253,200 @@
 			runIdFlag = 0;
 		}
 	
-		// Operator of the SMELLIE Run
-		var author = $("#operatorNameId").val();
+		// Operator of the TELLIE Run
+		var author = $("#operator_name_id").val();
 		if (author == ""){
 			author = "No Author Specified";
 		}					
-		
-		// SMELLIE Calibration Mode ----------------------------------------------------------------------
-		var calibrationMode = document.getElementsByName("calibrationMode");
-			 
-		if (calibrationMode[0].checked){ 								// to run in make SMELLIE calibration mode (true)
-			var smellieCalibrationMode = $("#calibrationTrueId").val(); //return true
-			$("#calibrationTableRefId").css("display","none"); 			//turn off the option to pick a calibration reference number
-		}
-		else if($(calibrationMode[1].checked)){ 							// to run in make normal SMELLIE run (false)
-			var smellieCalibrationMode = $("#calibrationFalseId").val(); 	//return false
-			$("#calibrationTableRefId").css("display","block"); 			//turn on the option to pick a calibration reference number
-		}
-		else{ //If the calibration mode isn't correct set due to HTML error or otherwise
-			totalErrorMessage = totalErrorMessage + "<li><h6>The Calibration Mode is not correctly set</h6></li>";			
-			alert("Error: The Calibration Mode is not correctly set");
-		}
-		//-------------------------------------------------------------------------------------------------------
-	
-		// SMELLIE Calibration Table Reference
-		var smellieCalibrationTableReference = $("#calibrationTableRefIdinput").val(); //value of the input
-		
-		// Check to see if a Calibration Table Reference has been given	
-		if(smellieCalibrationMode == "false"){ 	
-		//to see if the calibration length is empty and the mode is not set to Build calibration mode						
-			if (!smellieCalibrationTableReference.length && calibrationMode[1].checked){ 
-				calibrationFlag = 1; //raise calibration id flag
-				totalErrorMessage = totalErrorMessage + "<li><h6>Calibration Table Reference Id is not set</h6></li>";							
-				alert("Calibration Table Reference Id is not set.");
-			} 
-			else{
-				calibrationFlag = 0; //lower calibration id flag
-			}
-		}
-		else{
-			// During a SMELLIE Calibration run the table reference is NULL
-			smellieCalibrationTableReference = "NULL";
-		}
-							
-		//Trigger Mode 
-		var triggerMode = document.getElementsByName("triggerModeName"); //read the current operator input 
-	
-		if (triggerMode[0].checked){ // run SMELLIE in master mode
-			var smellietriggerMode = $("#masterModeId").val(); //return "Master mode"
-		}
-		else if(triggerMode[1].checked){ // run SMELLIE in slave mode
-			var smellietriggerMode = $("#slaveModeId").val(); //return "Slave mode"
-		}
-		else{ //If the calibration mode isn't correct set due to HTML error or otherwise
-			totalErrorMessage = totalErrorMessage + "<li><h6>The SMELLIE Trigger Mode is not correctly set</h6></li>";						
-			alert("Error: The SMELLIE Trigger Mode is not correctly set");
-		}
-		
-		//Laser Channel Selection 
-		var laserSelector = document.getElementById("laserChannelSelectId"); //get the laser Selector HTML element
-		var laserChannel = laserSelector.options[laserSelector.selectedIndex].value; //return the selected Laser Channel on the laser Selector HTML element
-		
-		//Laser Channel Selection 
-		var fibreSwitchSelector = document.getElementById("fibreSwitchSelectId"); //get the laser Selector HTML element
-		var fibreSwitchChannel = fibreSwitchSelector.options[fibreSwitchSelector.selectedIndex].value; //return the selected fibre Channel on the fibre switch Selector HTML element
-	
-		// Naked Laser Intensity
-		var nakedLaserIntensity = $("#laserIntensityId").val();
-		if(!nakedLaserIntensity.length){ //if the nakedLaserIntensity is not set
-			nakedLaserIntensityflag = 1; //raise the laser Intensity Flag
-			alert("Naked Laser Intensity not set.")	
-			totalErrorMessage = totalErrorMessage + "<li><h6>Naked Laser Intensity not set.</h6></li>";						
-		}
-		else if(nakedLaserIntensity < 0 || nakedLaserIntensity > 100){
-			nakedLaserIntensityflag = 1; //raise the laser Intensity Flag
-			totalErrorMessage = totalErrorMessage + "<li><h6>Naked Laser Intensity has to be between 0 and 100 (%)</h6></li>";
-			alert("Naked Laser Intensity has to be between 0 and 100 (%)");
-		}
-		else{
-			nakedLaserIntensityflag = 0; //lower the laser Intensity Flag
-		}
-	
-		//Photons per Pulse (Only for Master Mode)
-		var photonsPerPulse = "NULL" //This needs to be changed but is sufficient for the moment
-		
-		//Number of Pulses (Only for Master Mode - Slave mode is yet to be defined)
-		if(triggerMode[1].checked){ 
-			var nbPulsesValue = "NULL"; //if in Slave Mode then the number of pulses in NULL as the run configuration is different
-		}
-		else{
-			var nbPulsesValue = $("#numOfPulsesId").val();
-		}
-		
-		//SMELLIE Pulse Frequency (Only for Master Mode - Slave mode is yet to be defined)
-		if(triggerMode[1].checked){ 
-			var smelliePulseFrequency = "NULL"; //if in Slave Mode then the number of pulses in NULL as the run configuration is different
-		}
-		else{
-			var smelliePulseFrequency = $("#smelliePulseFrequency").val(); //in master mode return the pulse frequency
-		}
-				
-		//Check to make sure the SMELLIE Pulse Frequency is within a safe input range
-		var maxSmellieFreq = 1000; //value in Hz
-		var minSmellieFreq = 0;    //value in Hz 
-		if(smelliePulseFrequency > maxSmellieFreq || smelliePulseFrequency < minSmellieFreq){
-			if (triggerMode[0].checked){ //Check to see the detector is actually running in slave mode
-				smellietriggerMode = 0; 				
-				smellietriggerModeFlag = 1;  //raise the SMELLIE Trigger mode flag
-				totalErrorMessage = totalErrorMessage + "<li><h6>The SMELLIE Pulse Frequency needs to be between " + minSmellieFreq + " (Hz) and " + maxSmellieFreq + " (Hz)</h6></li>";			
-				alert("The SMELLIE Pulse Frequency needs to be between " + minSmellieFreq + " (Hz) and " + maxSmellieFreq + " (Hz)");
-			}
-			else{
-				smellietriggerModeFlag = 0;	//lower the SMELLIE Trigger mode flag	
-			}
-		}
+	        //Number of pulses per channel
+	        var num_pulses = $("#pulse_number_id").val();
+	        if (!num_pulses){
+	               numPulsesIdFlag = 1;
+	               alert("Number of pulses not set");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Number of pulses not set</h6></li>";
+	        }
+                else if (num_pulses < 0 || num_pulses > 65025){
+	               numPulsesIdFlag = 1;
+	               alert("Error: Inavlid number of pulses. Number of pulses ranges between 0 - 65025");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid number of pulses. Number of pulses ranges between 0 - 65025</h6></li>";
+	        } 
+	        else{
+	               numPulsesIdFlag = 0;
+                }
 
+		//Pulse Frequency
+	        var pulse_freq = $("#pulse_frequency_id").val();
+	        if (!pulse_freq){
+	               pulseFreqIdFlag = 1;
+	               alert("Pulse frequency not set");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Pulse frequency not set</h6></li>";
 
-		var jsonSmellieRunFile = '{"doc_type": "smellie_run","run_name": "SMELLIE","approved": true,"run_list": [{"run_id": ' + run_id + ', "hw": [ ],"author":"' + author + '", "time_stamp": "' + timeStamp + '","author": "' + author + '","smellie_calibration_table_reference": "' + smellieCalibrationTableReference +'","make_smellie_calibration_table": "' + smellieCalibrationMode + '","trigger_mode": "' + smellietriggerMode + '", "laser_selected": ' + laserChannel + ',"naked_laser_intensity":"' + nakedLaserIntensity + '","photons_per_pulse": "' + photonsPerPulse + '","nb_pulses": "' + nbPulsesValue + '", "fibre_switch_channel": ' + fibreSwitchChannel +  ',"smellie_pulse_frequency": "' + smelliePulseFrequency + '"}]}';	
+	        }
+
+                else if (pulse_freq < 0 || pulse_freq > 250000){
+	               pulseFreqIdFlag = 1;
+	               alert("Error: Invalid pulse frequency. Pulse frequency ranges between 0 - 250000 Hz");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid pulse frequency. Pulse frequency ranges between 0 - 250000 Hz</h6></li>";
+	        } 
+	        else{
+	               pulseFreqIdFlag = 0;
+                }
+
+	        //Trigger Delay
+	        var trig_delay = $("#trigger_delay_id").val();
+	        if (!trig_delay){
+	               trigDelayIdFlag = 1;
+	               alert("Trigger delay not set");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Trigger delay not set</h6></li>";
+
+	        }
+
+                else if (trig_delay < 0 || trig_delay > 1275){
+	               trigDelayIdFlag = 1;
+	               alert("Error: Invalid trigger delay. Trigger delay ranges between 0 - 1275 ns");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid trigger delay. Trigger delay ranges between 0 - 1275 ns</h6></li>";
+	        } 
+
+	        else{
+	               trigDelayIdFlag = 0;
+                }
+
+		//Channel fields
+	        var chan1 = $("#channel_id").val();
+	        var chan2 = $("#channel2_id").val();
+	        if (!chan1 || !chan2){
+	               channelIdFlag = 1;
+		  console.log("chan1"+chan1);
+		  console.log("chan2"+chan2);
+	               alert("Channel number not set, fill both fields.");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Channel number not set, fill both fields</h6></li>";
+	        }
+
+                else if (chan1 < 0 || chan1 > 96 || chan2 < 0 || chan2 > 96){
+	               channelIdFlag = 1;
+	               alert("Error: Invalid channel number. Channel number ranges between 0 - 96");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid channel number. Channel number ranges between 0 - 96</h6></li>";
+	        } 
+
+	        else{
+	               channelIdFlag = 0;
+                }
+
+	        //Pulse Height
+	        var IOP = $("#iop_id").val();
+	        if (!IOP){
+	               iopIdFlag = 1;
+	               alert("Pulse height (IOP) not set");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Pulse height (IOP) not set</h6></li>";
+
+	        }
+
+                else if (IOP < 0 || IOP > 16383){
+	               iopIdFlag = 1;
+	               alert("Error: Invalid pulse height (IOP). Pulse height (IOP) ranges between 0 - 16383");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid pulse height (IOP). Pulse height (IOP) ranges between 0 - 16383</h6></li>";
+	        } 
+
+	        else{
+	               iopIdFlag = 0;
+                }
+
+	        //Pulse Width
+	        var IPW = $("#ipw_id").val();
+	        if (!IPW){
+	               ipwIdFlag = 1;
+	               alert("Pulse width (IPW) not set");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Pulse width (IPW) not set</h6></li>";
+
+	        }
+
+                else if (IPW < 0 || IPW > 16383){
+	               ipwIdFlag = 1;
+	               alert("Error: Invalid pulse width (IPW). Pulse width (IPW) ranges between 0 - 16383");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid pulse width (IPW). Pulse width (IPW) ranges between 0 - 16383</h6></li>";
+	        } 
+
+	        else{
+	               ipwIdFlag = 0;
+                }
+
+	        //Fibre Delay
+	        var fib_delay = $("#fibre_delay_id").val();
+	        if (!fib_delay){
+	               fibreDelayIdFlag = 1;
+	               alert("Fibre delay not set");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Fibre delay not set</h6></li>";
+
+	        }
+
+                else if (fib_delay < 0 || fib_delay > 63.75){
+	               fibreDelayIdFlag = 1;
+	               alert("Error: Invalid Fibre delay. Fibre delay ranges between 0 - 1275 ns");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid fibre delay. Trigger delay ranges between 0 - 63.75 ns</h6></li>";
+	        } 
+
+	        else{
+	               fibreDelayIdFlag = 0;
+                }
 	
-	console.log(jsonSmellieRunFile);
+	       var errorFlagSum = runIdFlag  + numPulsesIdFlag + pulseFreqIdFlag + trigDelayIdFlag + channelIdFlag + iopIdFlag + ipwIdFlag +fibreDelayIdFlag;
+
+	       stopRunAbility = errorFlagSum; 
+
+		    if(errorFlagSum > 0){ //disable the start button
+		    totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"</ul>"; //close the bullet point of error message before printing
+  	            $('#inputErrors').html(totalErrorMessage);
+	            $("#inputErrors").css( "display", "block");
+                    return; //exit from firing
+                   }
+
+		    
+		    
+
+	var jsonTellieRunFile = '{"doc_type": "source","run_name": "TELLIE", "time_stamp": ' + timeStamp + ',"approved": true,"hw": [{"id":'+chan2+',"pulse_width":'+IPW+',"pulse_height":'+IOP+',"fibre_delay":'+fib_delay+'}], "run_list": [{"id": 0, "hw": [ ],"author":' + author + ',"led_selected":[' + chan2 + '], "ellie_driven": true,"detector_forced_readout": true,"nb_pulses":'+num_pulses+',"ellie_pulse_rate":'+pulse_freq+',"ellie_trigger_delay":'+trig_delay+',"subrun_loop_number":1}]}';	
+	
+	console.log(jsonTellieRunFile);
 	$("#hiddenJSON").css('display','none');
-	$("#hiddenJSON").html(jsonSmellieRunFile);
-	
-	var errorFlagSum = calibrationFlag  + nakedLaserIntensityflag + runIdFlag + smellietriggerModeFlag;
-	stopRunAbility = errorFlagSum; 
-			
-	if(errorFlagSum > 0){ //disable the start button
-		totalErrorMessage = totalErrorMessage + "</ul>"; //close the bullet point of error message before printing		
-		$('#inputErrors').html(totalErrorMessage);
-		$("#inputErrors").css( "display", "block");
-	}	
-		
-	} //End of the Load Values button
+	$("#hiddenJSON").html(jsonTellieRunFile);
 
-		
-	function submitToSmellieDaq(){
-		if(stopRunAbility > 0){
-			alert("Cannot start SMELLIE run, please refer to input settings");
+
+}
+
+function submitToTellieDaq(){
+
+	    clearErrorDiv(); //clear and setup the error message catch	
+
+           if(stopRunAbility > 0){
+			alert("Cannot start TELLIE run, please refer to input settings");
+		    totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"<h6>Channel settings not correctly loaded first. Load settings first!</h6></ul>"; //close the bullet point of error message before printing
 		}
 		else{
-			//Include a method to send a message to the Python script indicating that it is ready to send commands 
-			//submit to the SMELLIE DAQ (or ORCA in the future or both depending on future run scheme)
-			//var jsonSmellie = document.getElementById("hiddenJSON").innerHTML();
-			var jsonSmellieRunFile = $("#hiddenJSON").html();
-			console.log(jsonSmellieRunFile);
+			//submit to the TELLIE DAQ (or ORCA in the future or both depending on future run scheme)
+			var jsonTellieRunFile = $("#hiddenJSON").html();
+			console.log(jsonTellieRunFile);
 			$.ajax(
 				{
-					url: "http://couch.snopl.us/smellie",
+					url: "http://couch.snopl.us/tellie",
 					type: 'POST',
-					data: jsonSmellieRunFile,
+					data: jsonTellieRunFile,
 					dataType: 'json',
 					contentType: 'application/json; charset=utf-8',
 					success: alert("Staring run..."), 
 				});
+        totalErrorMessage =  '<img src="Ellie_Happy.gif">'+"<br><h6>Run Submitted!</h6>";	
 		}
-	} //end of submitToSmellieDaq()
+	
+
+	    
+	$('#inputErrors').html(totalErrorMessage);
+	$("#inputErrors").css( "display", "block");
+			
+
+}
 	
 	</script>
+
+
 	 <!-- Le javascript 
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
