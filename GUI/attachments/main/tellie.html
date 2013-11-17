@@ -76,6 +76,9 @@
                           <input type="number" id="trigger_delay_id" placeholder="e.g. 600">
                         </div>
 			</div>
+			<div class="control-group">
+					<a onClick="loadGlobal()" class="btn btn btn-action">Load Global</a>
+			</div>
                     </div>
 			
 		</div> 	
@@ -132,13 +135,24 @@
                             <input type="number" id="fibre_delay_id" placeholder="Time in ns">
                         </div>
                     </div>
+			<div class="control-group">
+					<a onClick="loadChannel()" class="btn btn btn-action">Load Channel</a>
+			</div>
+			<div class="control-group">
+					<a onClick="prepChannels()" class="btn btn btn-primary">Prepare Channels</a>
+			</div>
+			<div class="control-group">
+
+					<a onClick="clearChannels()" class="btn btn btn-danger">Clear Channels</a>
+			</div>
+
 
 		</div> 	
 
 					<div class="well span3" id="startButtons"> 
 					<h4>TELLIE Run Control:</h4><br>
 						<div class="control-group">
-							<a onClick="loadTellie()" class="btn btn btn-action" id="startButton">Load</a>
+							<a onClick="prepRun()" class="btn btn btn-action" id="startButton">Prepare Run</a>
 						</div>
 
 						<div class="control-group">
@@ -150,9 +164,11 @@
 					</div>
 					 
 					<div class="well span3" id="inputErrors", style="display:none"><h4></div>
+					<div class="well span3" id="trueGlobal", style="display:none"><h4></div>
+					<div class="well span3" id="trueChannel", style="display:none"><h4></div>
+					<div class="well span3" id="runStatus", style="display:none"><h4></div>
 					<div id="hiddenJSON"></div>
 				
-            </div>
         </div>
     </div>
 
@@ -166,16 +182,77 @@
 	var iopIdFlag=0;                                                        //IOP Id flag
 	var ipwIdFlag=0;                                                        //IPW Id flag
 	var fibreDelayIdFlag=0;                                                 //Fibre delay Id flag
-	var totalErrorMessage;							//Complete Error Message
-	var stopRunAbility = 10; 						//Stop a run from occuring (defaults to 10 to indicate the loading is not yet safe
+	var globalError = 10; 						        //Stop a run from occuring due to global error (defaults to 10 to indicate the loading is not yet safe)
+	var channelError = 10; 						        //Stop a run from occuring due to channel error (defaults to 10 to indicate the loading is not yet safe)
+	var stopRunAbility = 10; 						//Stop a run from occuring (defaults to 10 to indicate the loading is not yet safe)
 	/*------------------------------------------------------------------*/
 
+	/* GUI MESSAGES ----------------------------------------------------*/
+	var totalErrorMessage;							//Complete Error Message
+	var totalGlobal;							//Complete Global Parameters Message
+	var totalChannel;							//Complete channel Parameters Message
+	var totalRun;							        //Complete Run Status Message
+	var globalStatus;                                                       //Status of global settings
+	var channelStatus;                                                      //Status of channel settings
+	var runMsg;                                                             //Status of run
+	/*------------------------------------------------------------------*/
+
+	/* JSONS -----------------------------------------------------------*/
+	var globalJson;                                                         //Global Json file
+	var channelJson;                                                        //Channel Json file
+	var runJson;                                                            //Run Json file
+	/*------------------------------------------------------------------*/
 	
 	function clearErrorDiv(){
 		$("#inputErrors").css( "display", "none");				//reset the input error html
 		totalErrorMessage = "<h4>Input ERRORS:</h4><ul>";		//reset the error message	
 	
 	}
+
+	function clearGlobalDiv(){
+		$("#trueGlobal").css( "display", "none");				//reset the global message html
+		totalGlobal = "<h4>Global Parameters Info:</h4><ul>";		//reset the global message	
+	
+	}
+
+	function clearChannelDiv(){
+		$("#trueChannel").css( "display", "none");				//reset the channel message html
+		totalChannel = "<h4>Channel Parameters Info:</h4><ul>";		//reset the channel message	
+	
+	}
+	function clearRunDiv(){
+		$("#runStatus").css( "display", "none");				//reset the run message html
+		totalRun = "<h4>Run Status:</h4><ul>";		//reset the run message	
+	}
+	function updateRunDiv(){
+		clearRunDiv();				     //reset the run message html
+		if (!globalStatus && !runMsg){
+		  totalRun = totalRun + channelStatus + "</h6></li></ul>";
+		  }
+		else if (!channelStatus && !runMsg){
+		  totalRun = totalRun + globalStatus;
+		  }
+		else if (!channelStatus && !globalStatus){
+		  totalRun = totalRun + runMsg;
+		  }
+                else if (!channelStatus){
+		  totalRun = totalRun + globalStatus + runMsg;
+
+                }
+		else if (!globalStatus){
+		  totalRun = totalRun + channelStatus + "</h6></li>" + runMsg + "</ul>";
+		  }
+		else if (!runMsg){
+		  totalRun = totalRun + globalStatus + channelStatus + "</h6></li></ul>";
+		  }
+                else {
+		totalRun = totalRun + globalStatus + channelStatus + "</h6></li>" + runMsg + "</ul>";
+  }	
+	}
+
+
+
+
 
 	function loadTelliePreset(){
 
@@ -236,28 +313,56 @@
 
 
 
-	function loadTellie(){
+function getPulseNumber(pulse_num){
+      hi = -1;
+      lo = -1;
+      diff = 100000; //Bigger than max number of pulses
+      for ( var i=1; i < 256; i++)
+	{
+	// Assume hi = i
+	lo_check = Math.round(pulse_num/i);
+	if (lo_check > 255){
+	 lo_check = 255;
+	} 
+	check = i * lo_check
+	if (check == pulse_num){
+	  hi = i;
+	  lo = lo_check;
+	  break;
+	}
+	else if ( Math.abs(check - pulse_num) < diff){
+	 diff = Math.abs(check - pulse_num);
+	 hi = i;
+	 lo = lo_check;				
+	}
+	else break; // If diff getting larger then closest found
+	}
+      act_pulse_num = hi*lo;
+      return act_pulse_num;
+}
 
-		var timeStamp = new Date().getTime(); //returns the current time in epoch format (time in ms from January 1970)	
-	
-		clearErrorDiv(); //clear and setup the error message catch	
+function getPulseDelay(pulse_freq){
+     delay_s = 1/pulse_freq;
+     delay_us = delay_s *1000000; // delay in ms
+     act_delay = (4*Math.round(delay_us/4))/1000; // round to nearest 4 us in ms
+     return act_delay;
+}
 
-		// Run ID (currently the User inputs this from ORCA)
-		var run_id = $("#run_no_id").val();
-		if(!run_id.length){ //if the run ID is not set
-			run_id = 1;			
-			totalErrorMessage = totalErrorMessage + "<li><h6>Run ID is not set! Defaulting to 1!</h6></li>";
-			runIdFlag = 1;
-		}
-		else{
-			runIdFlag = 0;
-		}
-	
-		// Operator of the TELLIE Run
-		var author = $("#operator_name_id").val();
-		if (author == ""){
-			author = "No Author Specified";
-		}					
+function getTrigDelay(delay){
+     act_delay = (5*Math.round(delay/5)); // round to nearest 5 ns
+     return act_delay;
+}
+
+function getFibreDelay(delay){
+	act_delay = ((25/100)*Math.round((delay*100)/25));
+	return act_delay;
+}
+
+function loadGlobal(){
+	clearGlobalDiv(); // clear Global info
+	clearChannelDiv(); // clear Global info
+	clearErrorDiv(); //clear and setup the error message catch	
+
 	        //Number of pulses per channel
 	        var num_pulses = $("#pulse_number_id").val();
 	        if (!num_pulses){
@@ -273,24 +378,40 @@
 	        else{
 	               numPulsesIdFlag = 0;
                 }
+		act_pulse_num = getPulseNumber(num_pulses);
+		if ( num_pulses == act_pulse_num ){
+	               totalGlobal = totalGlobal + "<li><h6>Pulse Number: "+act_pulse_num+"</h6></li>";
+		}
+		else{
+	               totalGlobal = totalGlobal + "<li><h6>Pulse Number adjusted from "+num_pulses+" to "+act_pulse_num+"  </h6></li>";
+		}
 
 		//Pulse Frequency
 	        var pulse_freq = $("#pulse_frequency_id").val();
+		pulse_delay = getPulseDelay(pulse_freq);
 	        if (!pulse_freq){
 	               pulseFreqIdFlag = 1;
-	               alert("Pulse frequency not set");
 	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Pulse frequency not set</h6></li>";
+	               alert("Pulse frequency not set");
 
 	        }
 
-                else if (pulse_freq < 0 || pulse_freq > 250000){
+                else if (pulse_freq < 3.90594 || pulse_freq > 10000){
 	               pulseFreqIdFlag = 1;
-	               alert("Error: Invalid pulse frequency. Pulse frequency ranges between 0 - 250000 Hz");
-	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid pulse frequency. Pulse frequency ranges between 0 - 250000 Hz</h6></li>";
+	               alert("Error: Invalid pulse frequency. Pulse frequency ranges between 3.9054 - 10000 Hz");
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid pulse frequency. Pulse frequency ranges between 3.90594 - 10000 Hz</h6></li>";
 	        } 
 	        else{
 	               pulseFreqIdFlag = 0;
                 }
+                act_pulse_delay = getPulseDelay(pulse_freq);
+		act_freq = (1000/act_pulse_delay);
+		if ( (1/pulse_freq)*1000 == act_pulse_delay ){
+	               totalGlobal = totalGlobal + "<li><h6>Pulse Frequency: "+pulse_freq+" Hz. (Pulse Delay: "+act_pulse_delay+" ms.)</h6></li>";
+		}
+		else{
+	               totalGlobal = totalGlobal + "<li><h6>Pulse Frequency adjusted from "+pulse_freq+" Hz to "+act_freq.toFixed(5).replace(/\.?0+$/, "")+" Hz. (Pulse Delay: "+act_pulse_delay+" ms.)</h6></li>";
+		}
 
 	        //Trigger Delay
 	        var trig_delay = $("#trigger_delay_id").val();
@@ -310,26 +431,69 @@
 	        else{
 	               trigDelayIdFlag = 0;
                 }
+		act_trig_delay = getTrigDelay(trig_delay);
+		if ( trig_delay == act_trig_delay ){
+	               totalGlobal = totalGlobal + "<li><h6>Trigger Delay: "+trig_delay+" ns.</h6></li>";
+		}
+		else{
+	               totalGlobal = totalGlobal + "<li><h6>Trigger delay adjusted from "+trig_delay+" ns to "+act_trig_delay+" ns.</h6></li>";
+		}
 
-		//Channel fields
-	        var chan1 = $("#channel_id").val();
-	        var chan2 = $("#channel2_id").val();
-	        if (!chan1 || !chan2){
-	               channelIdFlag = 1;
-		  console.log("chan1"+chan1);
-		  console.log("chan2"+chan2);
-	               alert("Channel number not set, fill both fields.");
-	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Channel number not set, fill both fields</h6></li>";
-	        }
+	       var errorFlagSum = numPulsesIdFlag + pulseFreqIdFlag + trigDelayIdFlag;
 
+	       globalError = errorFlagSum; 
+
+		    if(errorFlagSum > 0){ //disable the start button
+		    totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"</ul>"; //close the bullet point of error message before printing
+  	            $('#inputErrors').html(totalErrorMessage);
+	            $("#inputErrors").css( "display", "block");
+                    globalStatus = "<li><h6>Error loading global settings. Check input errors.</h6></li>";
+                   return; //exit from loading
+                   }
+  	   $('#trueGlobal').html(totalGlobal);
+	   $("#trueGlobal").css( "display", "block");
+
+	   var globalJson = "Dummy Global";
+           if (!globalStatus){
+              globalStatus = "<li><h6>Global settings successfully loaded.</h6></li>"; 
+           }
+           else{
+              globalStatus = "<li><h6>Global settings successfully reloaded.</h6></li>"; 
+           }
+	   updateRunDiv();
+  	   $('#runStatus').html(totalRun);
+	   $("#runStatus").css( "display", "block");
+
+	    //*TO DO* Now search database for existing doc
+	    //*TO DO* If doc does not exist create one
+}
+
+function loadChannel(){
+	clearGlobalDiv(); // clear Global info
+	clearChannelDiv(); // clear Global info
+	clearErrorDiv(); //clear and setup the error message catch	
+
+	      //Channels
+	      var chan1 = $("#channel_id").val();
+	      var chan2 = $("#channel2_id").val();
+	      if (!chan1 || !chan2){
+	        channelIdFlag = 1;
+                alert("Channel number not set, fill both fields.");
+	        totalErrorMessage = totalErrorMessage + "<li><h6>Error: Channel number not set, fill both fields</h6></li>";
+	      }
                 else if (chan1 < 0 || chan1 > 96 || chan2 < 0 || chan2 > 96){
-	               channelIdFlag = 1;
-	               alert("Error: Invalid channel number. Channel number ranges between 0 - 96");
-	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid channel number. Channel number ranges between 0 - 96</h6></li>";
-	        } 
-
+		  channelIdFlag = 1;
+	          alert("Error: Invalid channel number. Channel number ranges between 0 - 96");
+	          totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid channel number. Channel number ranges between 0 - 96</h6></li>";
+	        }
+		else if ( chan1 != chan2 ){
+		  channelIdFlag = 1;
+	          alert("Error: Channel number fields do not match. Which channel do you want to fire?");
+	          totalErrorMessage = totalErrorMessage + "<li><h6>Error: Channel fields do not match. Which channel do you want to fire?</h6></li>";
+	        }
 	        else{
 	               channelIdFlag = 0;
+	               totalChannel = totalChannel + "<li><h6>Channel: "+chan1+"</h6></li>";
                 }
 
 	        //Pulse Height
@@ -338,7 +502,6 @@
 	               iopIdFlag = 1;
 	               alert("Pulse height (IOP) not set");
 	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Pulse height (IOP) not set</h6></li>";
-
 	        }
 
                 else if (IOP < 0 || IOP > 16383){
@@ -349,6 +512,8 @@
 
 	        else{
 	               iopIdFlag = 0;
+	               totalChannel = totalChannel + "<li><h6>Pulse Height: "+IOP+"</h6></li>";
+
                 }
 
 	        //Pulse Width
@@ -368,6 +533,7 @@
 
 	        else{
 	               ipwIdFlag = 0;
+	               totalChannel = totalChannel + "<li><h6>Pulse Width: "+IPW+"</h6></li>";
                 }
 
 	        //Fibre Delay
@@ -382,14 +548,21 @@
                 else if (fib_delay < 0 || fib_delay > 63.75){
 	               fibreDelayIdFlag = 1;
 	               alert("Error: Invalid Fibre delay. Fibre delay ranges between 0 - 1275 ns");
-	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid fibre delay. Trigger delay ranges between 0 - 63.75 ns</h6></li>";
+	               totalErrorMessage = totalErrorMessage + "<li><h6>Error: Inavlid fibre delay. Fibre delay ranges between 0 - 63.75 ns</h6></li>";
 	        } 
 
 	        else{
 	               fibreDelayIdFlag = 0;
                 }
-	
-	       var errorFlagSum = runIdFlag  + numPulsesIdFlag + pulseFreqIdFlag + trigDelayIdFlag + channelIdFlag + iopIdFlag + ipwIdFlag +fibreDelayIdFlag;
+		act_fib_delay = getFibreDelay(fib_delay);
+		if ( fib_delay == act_fib_delay ){
+	               totalChannel = totalChannel + "<li><h6>Fibre Delay: "+fib_delay+" ns.</h6></li>";
+		}
+		else{
+	               totalChannel = totalChannel + "<li><h6>Fibre delay adjusted from "+fib_delay+" ns to "+act_fib_delay+" ns.</h6></li>";
+		}
+
+	       var errorFlagSum = channelIdFlag + iopIdFlag + ipwIdFlag + fibreDelayIdFlag;
 
 	       stopRunAbility = errorFlagSum; 
 
@@ -397,32 +570,124 @@
 		    totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"</ul>"; //close the bullet point of error message before printing
   	            $('#inputErrors').html(totalErrorMessage);
 	            $("#inputErrors").css( "display", "block");
-                    return; //exit from firing
+                    return; //exit from loading
                    }
+  	   $('#trueChannel').html(totalChannel);
+	   $("#trueChannel").css( "display", "block");
 
-		    
-		    
+	    channelJson = channelJson + " Dummy Channel ";
+	    if ( !channelStatus){
+	       channelStatus = "<li><h6>Channels loaded: "+chan1; 
+	    }
+	    else {
+	       channelStatus = channelStatus+", "+chan1;
+	    }
+	   updateRunDiv();
+  	   $('#runStatus').html(totalRun);
+	   $("#runStatus").css( "display", "block");
 
-	var jsonTellieRunFile = '{"doc_type": "source","run_name": "TELLIE", "time_stamp": ' + timeStamp + ',"approved": true,"hw": [{"id":'+chan2+',"pulse_width":'+IPW+',"pulse_height":'+IOP+',"fibre_delay":'+fib_delay+'}], "run_list": [{"id": 0, "hw": [ ],"author":' + author + ',"led_selected":[' + chan2 + '], "ellie_driven": true,"detector_forced_readout": true,"nb_pulses":'+num_pulses+',"ellie_pulse_rate":'+pulse_freq+',"ellie_trigger_delay":'+trig_delay+',"subrun_loop_number":1}]}';	
-	
-	console.log(jsonTellieRunFile);
-	$("#hiddenJSON").css('display','none');
-	$("#hiddenJSON").html(jsonTellieRunFile);
-
-
+	    //*TO DO* Now search database for existing doc
+	    //*TO DO* If doc does not exist create one
 }
 
+function prepChannels(){
+	clearGlobalDiv(); // clear Global info
+	clearChannelDiv(); // clear Global info
+	clearErrorDiv(); //clear and setup the error message catch	
+	  if (!channelJson){
+	       totalErrorMessage = totalErrorMessage + "<li><h6>Error: No channels have been loaded!</h6></li>";
+	       channelError = 1;
+
+	    }
+
+          //*TO DO* Add channels to run pattern
+	   else {
+	    channelError = 0;
+	}
+	       var errorFlagSum = channelError;
+
+	       stopRunAbility = errorFlagSum; 
+
+	    if(errorFlagSum > 0){ //disable the start button
+		    totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"</ul>"; //close the bullet point of error message before printing
+  	            $('#inputErrors').html(totalErrorMessage);
+	            $("#inputErrors").css( "display", "block");
+
+                    return; //exit from loading
+             }
+	     channelStatus = channelStatus + "</h6></li><li><h6> Channels prepared! ";
+	updateRunDiv();
+  	$('#runStatus').html(totalRun);
+	$("#runStatus").css( "display", "block");
+}
+
+function clearChannels(){
+	clearGlobalDiv(); // clear Global info
+	clearChannelDiv(); // clear Global info
+	clearErrorDiv(); //clear and setup the error message catch	
+	var channelJson;
+	channelStatus = "<li><h6>List of channels to be run has been reset";
+	channelError = 1;
+	console.log("HELLO");
+	updateRunDiv();
+  	$('#runStatus').html(totalRun);
+	$("#runStatus").css( "display", "block");
+	channelStatus = null;
+}
+
+function prepRun(){
+	clearErrorDiv(); //clear and setup the error message catch	
+	clearGlobalDiv(); // clear Global info
+	clearChannelDiv(); // clear Global info
+
+	stopRunAbility = globalError + channelError;
+	if ( stopRunAbility != 0){
+	runMsg = "<li><h6>Settings Not loaded correctly! </h6></li>";
+	alert("Cannot load TELLIE run, please refer to input settings");
+        totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"<h6>Channel settings not correctly loaded first. Load settings first!</h6></ul>"; //close the bullet point of error message before printing
+	$('#inputErrors').html(totalErrorMessage);
+	$("#inputErrors").css( "display", "block");
+	}
+	else {
+	runMsg = "<li><h6>Run prepared. Ready to fire! </h6></li>" ;
+	}
+
+	updateRunDiv();
+  	$('#runStatus').html(totalRun);
+	$("#runStatus").css( "display", "block");
+}
+
+		    
+		    
+
+//	var jsonTellieRunFile = '{"doc_type": "source","run_name": "TELLIE", "time_stamp": ' + timeStamp + ',"approved": true,"hw": [{"id":'+chan2+',"pulse_width":'+IPW+',"pulse_height":'+IOP+',"fibre_delay":'+fib_delay+'}], "run_list": [{"id": 0, "hw": [ ],"author":' + author + ',"led_selected":[' + chan2 + '], "ellie_driven": true,"detector_forced_readout": true,"nb_pulses":'+num_pulses+',"ellie_pulse_rate":'+pulse_freq+',"ellie_trigger_delay":'+trig_delay+',"subrun_loop_number":1}]}';	
+	
+//	console.log(jsonTellieRunFile);
+//	$("#hiddenJSON").css('display','none');
+//	$("#hiddenJSON").html(jsonTellieRunFile);
+
+
 function submitToTellieDaq(){
+	clearErrorDiv(); //clear and setup the error message catch	
+	clearGlobalDiv(); // clear Global info
+	clearChannelDiv(); // clear Global info
 
-	    clearErrorDiv(); //clear and setup the error message catch	
-
-           if(stopRunAbility > 0){
+        if(stopRunAbility > 0){
 			alert("Cannot start TELLIE run, please refer to input settings");
 		    totalErrorMessage =  '<img src="Ellie_Fail.gif">'+"<br>"+totalErrorMessage+"<h6>Channel settings not correctly loaded first. Load settings first!</h6></ul>"; //close the bullet point of error message before printing
+	runMsg = "<li><h6>Settings Not loaded correctly! </h6></li>";
+	$('#inputErrors').html(totalErrorMessage);
+	$("#inputErrors").css( "display", "block");
+	updateRunDiv();
+  	$('#runStatus').html(totalRun);
+	$("#runStatus").css( "display", "block");
+	    
+			
+
 		}
 		else{
 			//submit to the TELLIE DAQ (or ORCA in the future or both depending on future run scheme)
-			var jsonTellieRunFile = $("#hiddenJSON").html();
+			/*var jsonTellieRunFile = $("#hiddenJSON").html();
 			console.log(jsonTellieRunFile);
 			$.ajax(
 				{
@@ -432,15 +697,18 @@ function submitToTellieDaq(){
 					dataType: 'json',
 					contentType: 'application/json; charset=utf-8',
 					success: alert("Staring run..."), 
-				});
-        totalErrorMessage =  '<img src="Ellie_Happy.gif">'+"<br><h6>Run Submitted!</h6>";	
+				});*/
+        globalStatus =  '<img src="Ellie_Happy.gif">'+"<br><h5>Run Submitted!</h5>" + globalStatus;	
+	updateRunDiv();
+  	$('#runStatus').html(totalRun);
+	$("#runStatus").css( "display", "block");
+        // run finished reset messages 
+	globalStatus = null;
+        channelStatus = null;
+        runMsg = null;
 		}
 	
 
-	    
-	$('#inputErrors').html(totalErrorMessage);
-	$("#inputErrors").css( "display", "block");
-			
 
 }
 	
